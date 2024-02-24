@@ -2,6 +2,9 @@ import h5py
 import os, os.path
 import numpy as np
 
+def load_lockbox(filename='lockbox.h5'):
+    return load_dict_from_hdf5(filename)['data']
+
 def safe_open_w(path):
     ''' Open "path" for writing, creating any parent directories as needed.
     '''
@@ -121,7 +124,6 @@ def get_lockbox_data(loaded_inputs, loaded_targets, lockbox):
         per_sbj_lockbox_targets.append(subj_targets)
     
     return np.vstack(per_sbj_lockbox_inputs), np.vstack(per_sbj_lockbox_targets)
-
 
 
 def remove_lockbox(loaded_inputs, loaded_targets, lockbox):

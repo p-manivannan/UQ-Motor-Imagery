@@ -26,13 +26,13 @@ class DUQModel(BaseConvModel):
     def build(self, hp):
         self.hp = hp
         model = keras.models.Sequential()
-        self.add_conv_filters(model)
-        self.add_batch_norm(model)
-        self.add_pooling(model)
-        self.flatten(model)
-        self.add_dense(model)
-        self.add_rbf_layer(model)
-        self.compile_model(model, loss='binary_crossentropy', metrics=["categorical_accuracy"])
+        model = self.add_conv_filters(model)
+        model = self.add_batch_norm(model)
+        model = self.add_pooling(model)
+        model = self.flatten(model)
+        model = self.add_dense(model)
+        model = self.add_rbf_layer(model)
+        model = self.compile_model(model, loss='binary_crossentropy', metrics=["categorical_accuracy"])
         add_l2_regularization(model)
         return model
 
