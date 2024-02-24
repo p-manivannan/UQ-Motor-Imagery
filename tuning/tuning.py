@@ -39,9 +39,9 @@ class Tuner:
     def __init__(self, n_epochs=200, callbacks=None, method=None, overwrite=True, objective='val_loss', max_trials=200,
                 executions_per_trial=1, tuner_type='GridSearch', hypermodel=None):
         self.n_epochs = n_epochs
-        self.callbacks = default_callbacks() if callbacks is None else callbacks
-        self.directory = f'{self.method}/tuning'
+        self.callbacks = self.default_callbacks() if callbacks is None else callbacks
         self.method = method
+        self.directory = f'{self.method}/tuning'
         self.overwrite = overwrite
         self.objective = objective
         self.max_trials = max_trials
@@ -56,13 +56,8 @@ class Tuner:
 
     def default_callbacks(self, patience=10, monitor='val_loss'):
         early_stopping = EarlyStopping(monitor=monitor, patience=patience)
-        self.callbacks = [early_stopping]
-
-    '''
-    Loads data from hdf5 file. Expects filename at the end
-    '''
-    def load_data(self, filename):
-        return load_dict_from_hdf5(filename)
+        callbacks = [early_stopping]
+        return callbacks
 
     '''
     Only supports GridSearch for now
@@ -73,7 +68,7 @@ class Tuner:
                                   objective=self.objective,
                                   max_trials=self.max_trials,
                                   overwrite=self.overwrite,
-                                  directory=directory)
+                                  directory=self.directory)
             return tuner
 
     def search(self, dataset, lockbox, single_subj=True):
@@ -82,7 +77,7 @@ class Tuner:
 
     def search_single_subject(self, dataset, lockbox, test_subject_id=0):
         lockbox_idxs = lockbox[test_subject_id]  # Get lockbox indexes of train set for test subject 0
-        train_ids = subject_ids[:]
+        train_ids = self.subject_ids[:]
         train_ids.remove(test_subject_id)        # Remove test subject id from train subject ids
         loaded_inputs = dataset['inputs']
         loaded_targets = dataset['targets']
@@ -91,6 +86,7 @@ class Tuner:
         train_inputs, train_targets = remove_lockbox(train_inputs, train_targets, lockbox_idxs)      # Remove lockbox data from train set
         X_train, X_val, Y_train, Y_val = train_test_split(train_inputs, train_targets, test_size=0.1)
         tuner = self.tuner_init()
+        print(f'search func: {self.callbacks}')
         tuner.search(X_train, Y_train, epochs=self.n_epochs, validation_data=(X_val, Y_val),
                         callbacks=self.callbacks)
 
