@@ -65,7 +65,7 @@ class FlipoutModel(BaseConvModel):
     
     def build(self, hp):
         self.hp = hp
-        model = keras.layers.Sequential()
+        model = keras.models.Sequential()
         self.add_conv_filters(model)
         self.add_batch_norm(model)
         self.add_pooling(model)

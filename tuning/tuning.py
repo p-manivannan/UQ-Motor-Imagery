@@ -77,7 +77,7 @@ class Tuner:
             self.search_single_subject(dataset, lockbox, subj)
         else:
             for n in self.subject_ids:
-                self.search_single_subject(dataset, lockbox, subj)
+                self.search_single_subject(dataset, lockbox, n)
 
     def search_single_subject(self, dataset, lockbox, test_subject_id):
         lockbox_idxs = lockbox[test_subject_id]  # Get lockbox indexes of train set for test subject 0
