@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping
-from models_bachelors import *
-from file_functions import *
+# from models_bachelors import *
+# from file_functions import *
 import tensorflow as tf
 import keras_tuner as kt
 import datetime
@@ -59,6 +59,10 @@ class Tuner:
         early_stopping = EarlyStopping(monitor=monitor, patience=patience)
         callbacks = [early_stopping]
         return callbacks
+
+    def load_tuned_model(self, method):
+        tuner = self.tuner_init()
+        pass
 
     '''
     Only supports GridSearch for now
