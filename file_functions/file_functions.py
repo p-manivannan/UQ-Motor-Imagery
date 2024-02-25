@@ -2,7 +2,7 @@ import h5py
 import os, os.path
 import numpy as np
 
-def load_lockbox(filename='lockbox.h5'):
+def load_lockbox(filename='lockbox'):
     return load_dict_from_hdf5(filename)['data']
 
 def safe_open_w(path):
