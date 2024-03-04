@@ -1,10 +1,10 @@
 # To-Do:
-- Create config writing/loading to access method names:
-    - 
+- Test and bug fix training pipeline
 - Clean up and make the following pipelines as modular as possible:
-    - Training
     - Predicting
     - Analysis
+- Create config writing/loading to access method names:
+    - As well as the training/tuning params for each method
 
 # Done:
 - Pre-processing 👍
