@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from tuning import get_class
 
 
 class Trainer:
@@ -35,5 +36,4 @@ class Trainer:
             history = model.fit(X_train, Y_train, epochs=n_epochs, validation_data=[X_val, Y_val],
                             callbacks=self.callbacks)
 
-    
 
