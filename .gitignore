@@ -1,1 +1,8 @@
 __pycache__/
+dropconnect/
+dropout/
+duq/
+ensemble/
+flipout/
+mcdropconnect/
+mcdropout/

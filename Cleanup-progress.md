@@ -3,6 +3,7 @@
 - Clean up and make the following pipelines as modular as possible:
     - Predicting
     - Analysis
+- Refer to tune_methods.py for improvements to tuning
 - Create config writing/loading to access method names:
     - As well as the training/tuning params for each method
 

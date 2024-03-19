@@ -1,7 +1,8 @@
 scikit-learn
-tensorflow
+tensorflow 2.12.0
 keras_uncertainty
-keras
 keras-tuner
 PyYAML
 dropconnect_tensorflow
+
+do conda show to get the exact versions
