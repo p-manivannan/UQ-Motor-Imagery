@@ -1,48 +1,40 @@
 from sklearn.model_selection import train_test_split
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from tuning import get_class
 import file_functions as ff
 
+'''
+Predictor should be able to handle the number of iterations
+varying for different methods:
+- DUQ, Dropout, DropConnect and ensembles need only 1 iteration
+- Flipout, MC-Dropout and MC-Dropconnect require num_iterations
+  prediction sets to average the effects of their stochasticity.
 
+'''
 class Predictor:
-    def __init__(self, method=None, hp=None, callbacks=None, n_epochs=200):
-        self.n_epochs = n_epochs
+    def __init__(self, method=None, hp=None, num_iterations=50):
         # MC methods and their standard counterparts share the same weights. They are only different at prediction time
-        self.method = ff.alias_method(method)
+        self.method = method
         self.hp = hp
-        self.callbacks = self.default_callbacks() if callbacks is None else callbacks
         self.subject_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-        self.directory = f'{method}/weights'
+        self.directory = ff.get_weights_directory(method)
+        self.N = num_iterations
+        self.predictions = {self.method : 
+                            {'test': {'preds': [], 'labels': []},
+                             'lockbox': {'preds':[], 'labels': []}}}
 
-    def default_callbacks(self, patience=10, monitor='val_loss'):
-        early_stopping = EarlyStopping(monitor=monitor, patience=patience)
-        callbacks = [early_stopping]
-        return callbacks
+    def save_predictions(self, filename):
+        ff.save_dict_to_hdf5(f'{ff.get_predictions_directory(self.method) + filename}')
 
-    def saving_callback(self, checkpoint_path):
-        return ModelCheckpoint(filepath=checkpoint_path,
-                                          save_weights_only=True,
-                                          verbose=1)
-                                        
-    def train(self, dataset, lockbox):
-        for test_subject_id in self.subject_ids:
-            # weights saving directory and callbacks
-            checkpoint_path = f'{self.directory}/test_subject_{test_subject_id}'
-            saving_callback = self.saving_callback(checkpoint_path)
-            # Makes sure there aren't 2 saving callbacks in self.callbacks
-            callbacks = self.callbacks + [saving_callback]
-            train_ids = self.subject_ids[:]
-            train_ids.remove(test_subject_id)       # Remove test subject id
-            test_subj_lockbox = lockbox[test_subject_id]        # Get lockbox indexes (8, 57) for the test subject
-            loaded_inputs = dataset['inputs']
-            loaded_targets = dataset['targets']
-            inputs = loaded_inputs[train_ids]           # Get train set inputs
-            targets = loaded_targets[train_ids]         # Get train set targets
-            inputs, targets = ff.remove_lockbox(inputs, targets, test_subj_lockbox)    # Remove lockboxed set from train set
-            X_train, X_val, Y_train, Y_val = train_test_split(inputs, targets,test_size=0.1)
-            
-            model = get_class(self.method).build(self.hp)
-            model.fit(X_train, Y_train, epochs=self.n_epochs, validation_data=[X_val, Y_val],
-                            callbacks=callbacks)
+    def predict(self, dataset, lockbox):
+        if ff.isMethodStochastic(self.method):
+            self.predict_n_passes(dataset, lockbox)
+        else:
+            self.predict_one_pass(dataset, lockbox)
+            self.save_predictions(f'prediction_{self.method}')
 
+
+    def predict_n_passes(self, dataset, lockbox):
+        pass
+
+    def predict_one_pass(self, dataset, lockbox):
+        pass
 

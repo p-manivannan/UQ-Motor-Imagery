@@ -27,13 +27,19 @@ def get_class(method):
         return FlipoutModel()
     return None
 
+'''
+returns true if a model is stochastic
+(MC methods and flipout)
+'''
+def isMethodStochastic(self, method):
+    return True if 'mc' in method or 'flipout' in method else False
 
 '''
 Gets method to tune for based on method name.
 Case 1: If given method is either: ensembles, MC-Dropout or Dropout,
-dropout will be tuned.
+dropout will be tuned/trained.
 Case 2: If given method is either MC-DropConnect or DropConnect,
-DropConnect will be tuned.
+DropConnect will be tuned/trained
 Case 3: Otherwise, the tuning based method is the same as the method
 (DUQ, Flipout)
 This is because the hyperparameters are the same for all methods in Case 1.

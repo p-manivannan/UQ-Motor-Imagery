@@ -7,6 +7,10 @@ def get_weights_directory(method):
     method = alias_method(method)
     return f'{method}/weights'
 
+def get_predictions_directory(method):
+    return f'{method}/predictions'
+
+    
 def load_lockbox(filename='lockbox'):
     return load_dict_from_hdf5(filename)['data']
 
@@ -78,15 +82,6 @@ def recursively_load_dict_contents_from_group( h5file, path):
     return ans            
 
 
-# Returns weights directory for a method
-def get_weights_directory(method):
-    if method in ['standard', 'standard_dropout', 'mcdropout']:
-        return f'mcdropout/weights'
-    elif method in ['dropconnect', 'standard_dropconnect', 'mcdropconnect']:
-        return f'mcdropconnect/weights'
-    else:
-        return f'{method}/weights'
-    
 # checkpoint path is sometimes an hdf5 file in the case of ensembles and a ckpt file for mcdropout and the like.
 # this function corrects the weight path depending on the extension
 # duq, ensembles and flipout don't have .ckpt but mcdropout and mcdropconnect do
