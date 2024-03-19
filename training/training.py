@@ -7,7 +7,8 @@ import file_functions as ff
 class Trainer:
     def __init__(self, method=None, hp=None, callbacks=None, n_epochs=200):
         self.n_epochs = n_epochs
-        self.method = method
+        # MC methods and their standard counterparts share the same weights. They are only different at prediction time
+        self.method = ff.alias_method(method)
         self.hp = hp
         self.callbacks = self.default_callbacks() if callbacks is None else callbacks
         self.subject_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -22,8 +23,7 @@ class Trainer:
         return ModelCheckpoint(filepath=checkpoint_path,
                                           save_weights_only=True,
                                           verbose=1)
-
-
+                                        
     def train(self, dataset, lockbox):
         for test_subject_id in self.subject_ids:
             # weights saving directory and callbacks

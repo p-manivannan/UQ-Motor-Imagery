@@ -13,22 +13,24 @@ dataset = ff.load_dict_from_hdf5('dataset')
 lockbox = ff.load_lockbox()
 # Tune
 # for method in methods:
-#     Class = tn.get_class(method)
-#     # Info in config file should allow skipping of redundant methods.
-#     # Like tuning only either mcdropout or dropout. Same for
-#     # mcdropconnect or dropconnect, and not tuning ensembles.
-#     # Info in config file should be passed to Tuner to allow
-#     # it to reject certain methods for tuning.
+#     Class = ff.get_class(method)
 #     tuner = tn.Tuner(method=method, hypermodel=Class.build)
 #     tuner.search(dataset, lockbox)
 
 # Train
 for method in methods:
-    Class = tn.get_class(method)
+    Class = ff.get_class(method)
     # Get best hps from reloaded tuners
     tuner = tn.Tuner(method=method)
     hp = tuner.load_best_hps()
     trainer = trn.Trainer(method=method, hp=hp)
     trainer.train(dataset, lockbox)
+
+# Predict
+for method in methods:
+    Class = ff.get_class(method)
+    hp = tn.tuner(method=method).load_best_hps()
+    predictor = prd.Predictor(method=method, hp=hp)
+    predictor.predict(dataset, lockbox)
 
 

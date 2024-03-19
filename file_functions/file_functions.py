@@ -1,6 +1,11 @@
 import h5py
 import os, os.path
 import numpy as np
+from model_utils import alias_method
+
+def get_weights_directory(method):
+    method = alias_method(method)
+    return f'{method}/weights'
 
 def load_lockbox(filename='lockbox'):
     return load_dict_from_hdf5(filename)['data']

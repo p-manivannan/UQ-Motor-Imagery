@@ -1,38 +1,11 @@
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping
-# from models_bachelors import *
 import file_functions as ff
-import tensorflow as tf
 import keras_tuner as kt
 
-from models import EnsembleModel, MCDropConnectModel, MCDropoutModel
-from models import DropConnectModel, DropoutModel
-from models import DUQModel, FlipoutModel
 
-def condense_string(text):
-    return text.strip().lower().replace(' ', '_')
 
-def get_class(method):
-    method = condense_string(method)
-    if method is None:
-        raise ValueError ("method provided is None!")
-    if 'dropout' in method:
-        if 'mc' in method:
-            return MCDropoutModel()
-        else:
-            return DropoutModel()
-    elif 'connect' in method:
-        if 'mc' in method:
-            return MCDropConnectModel()
-        else:
-            return DropConnectModel()
-    elif 'ensem' in method:
-        return EnsembleModel()
-    elif 'duq' in method:
-        return DUQModel()
-    elif 'flip' in method:
-        return FlipoutModel()
-    return None
+
 '''
 Tuner is built to tune the following:
 - Dropout
@@ -47,41 +20,17 @@ class Tuner:
                 executions_per_trial=1, tuner_type='GridSearch'):
         self.n_epochs = n_epochs
         self.callbacks = self.default_callbacks() if callbacks is None else callbacks
-        self.method = self.tuning_based_method(method)
+        self.method = ff.alias_method(method)
         self.directory = f'{self.method}/tuning'
         self.overwrite = overwrite
         self.objective = objective
         self.max_trials = max_trials
         self.executions_per_trial = executions_per_trial
         self.tuner_type = tuner_type
-        self.hypermodel = self.determine_hypermodel(self.method)
+        self.hypermodel = ff.determine_hypermodel(self.method)
         self.subject_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8]
         self.tuner = self.tuner_init()
 
-    '''
-    Gets method to tune for based on method name.
-    Case 1: If given method is either: ensembles, MC-Dropout or Dropout,
-    dropout will be tuned.
-    Case 2: If given method is either MC-DropConnect or DropConnect,
-    DropConnect will be tuned.
-    Case 3: Otherwise, the tuning based method is the same as the method
-    (DUQ, Flipout)
-    This is because the hyperparameters are the same for all methods in Case 1.
-    The same can be said of Case 2. So there is no needless tuning.
-    '''
-    def tuning_based_method(self, method):
-        method = condense_string(method)
-        if method is None:
-            raise ValueError ("method provided is None!")
-        if 'dropout' in method or 'ensemble' in method:
-            return 'dropout'
-        elif 'connect' in method:
-            return 'dropconnect'
-        return method
-
-    def determine_hypermodel(self, method):
-        Class = get_class(method)
-        return Class.build
 
     def default_callbacks(self, patience=10, monitor='val_loss'):
         early_stopping = EarlyStopping(monitor=monitor, patience=patience)
