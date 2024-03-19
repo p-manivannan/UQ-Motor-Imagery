@@ -29,5 +29,6 @@ for method in methods:
     tuner = tn.Tuner(method=method)
     hp = tuner.load_best_hps()
     trainer = trn.Trainer(method=method, hp=hp)
+    trainer.train(dataset, lockbox)
 
 

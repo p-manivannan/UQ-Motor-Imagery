@@ -43,7 +43,7 @@ MC Methods, standard methods and Ensembling use the same
 tuners. Hypermodel selection is done accordingly
 '''
 class Tuner:
-    def __init__(self, n_epochs=200, callbacks=None, method=None, overwrite=True, objective='val_loss', max_trials=200,
+    def __init__(self, n_epochs=200, callbacks=None, method=None, overwrite=False, objective='val_loss', max_trials=200,
                 executions_per_trial=1, tuner_type='GridSearch'):
         self.n_epochs = n_epochs
         self.callbacks = self.default_callbacks() if callbacks is None else callbacks
