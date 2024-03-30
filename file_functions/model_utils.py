@@ -31,7 +31,7 @@ def get_class(method):
 returns true if a model is stochastic
 (MC methods and flipout)
 '''
-def isMethodStochastic(self, method):
+def isMethodStochastic(method):
     return True if 'mc' in method or 'flipout' in method else False
 
 '''

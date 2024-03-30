@@ -1,1 +1,1 @@
-from .tuning import Tuner, get_class
+from .tuning import Tuner

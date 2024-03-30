@@ -1,6 +1,5 @@
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from tuning import get_class
 import file_functions as ff
 
 
@@ -41,7 +40,7 @@ class Trainer:
             inputs, targets = ff.remove_lockbox(inputs, targets, test_subj_lockbox)    # Remove lockboxed set from train set
             X_train, X_val, Y_train, Y_val = train_test_split(inputs, targets,test_size=0.1)
             
-            model = get_class(self.method).build(self.hp)
+            model = ff.get_class(self.method).build(self.hp)
             model.fit(X_train, Y_train, epochs=self.n_epochs, validation_data=[X_val, Y_val],
                             callbacks=callbacks)
 

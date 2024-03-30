@@ -1,7 +1,7 @@
 import h5py
 import os, os.path
 import numpy as np
-from model_utils import alias_method
+from .model_utils import alias_method
 
 def get_weights_directory(method):
     method = alias_method(method)
@@ -80,16 +80,6 @@ def recursively_load_dict_contents_from_group( h5file, path):
         elif isinstance(item, h5py._hl.group.Group):
             ans[key] = recursively_load_dict_contents_from_group(h5file, path + key + '/')
     return ans            
-
-
-# checkpoint path is sometimes an hdf5 file in the case of ensembles and a ckpt file for mcdropout and the like.
-# this function corrects the weight path depending on the extension
-# duq, ensembles and flipout don't have .ckpt but mcdropout and mcdropconnect do
-def rectify_wts_path(method, wts_path):
-    if method in ['standard', 'standard_dropout', 'standard_dropconnect', 'mcdropout', 'mcdropconnect']:
-        return wts_path + '.ckpt'
-    else:
-        return wts_path
 
 # This function is used to to reshape np array shaped like
 # (num_subjects, num_trials, num_channels, num_timestamps)
