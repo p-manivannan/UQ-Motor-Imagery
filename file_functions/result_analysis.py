@@ -4,6 +4,25 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 import re
+from .model_utils import isMethodStochastic
+from .file_functions import fetch_method_names
+
+def create_per_subj_dict():
+  # Create per-subject dictionary
+  methods = fetch_method_names()
+  metrics = fetch_metric_names()
+  keys = fetch_keys()
+
+  per_subj_dict = {}
+
+  for method in methods:
+      per_subj_dict[method] = {}
+      for metric in metrics:
+          per_subj_dict[method][metric] = {}
+          for key in keys:
+              per_subj_dict[method][metric][key] = []
+
+  return per_subj_dict
 
 '''
 Checks if an np array is a standard method solely based
@@ -94,25 +113,28 @@ def get_corrects(Y_true, Y_pred, axis):
         Y_pred = np.mean(Y_true, axis=-3)       # averages forward passes if not already averaged
     return np.argmax(Y_true, axis=axis) == np.argmax(Y_pred, axis=axis)
 
-def load_predictions(method, num=None):
-    if 'standard' in method:        # Like standard_dropout/standard/standard_dropconnect
-        return load_dict_from_hdf5(f'predictions/predictions_standard.h5')
-    elif 'ensemble' in method:      # currently only ensemble based on regular dropout
-        return load_dict_from_hdf5(f'predictions/predictions_ensemble_dropout.h5')
+# WIP
+def load_predictions(method):
+    if 'ensemble' in method:      # currently only ensemble based on regular dropout
+        return load_dict_from_hdf5(f'ensemble/predictions/prediction.h5')
     elif 'duq' in method:
-        return load_dict_from_hdf5(f'predictions/predictions_duq_new.h5')
-    elif num != None:                           # Only cases are MC-Dropout and MC-DropConnect
-        if 'standard' in method:
-           return load_dict_from_hdf5(f'predictions/predictions_{num}.h5')
-        else:   # Only flipout satisfies this condition for now
-           return load_dict_from_hdf5(f'predictions/flipout_new/predictions_flipout_{num}.h5')
+        return load_dict_from_hdf5(f'duq/predictions/prediction.h5')                     # Only cases are MC-Dropout and MC-DropConnect
+    
+    if 'mc' not in method:
+      if 'dropout' in method:
+        return load_dict_from_hdf5(f'dropout/predictions/prediction.h5')
+      elif 'dropconnect' in method:
+        return load_dict_from_hdf5((f'dropconnect/predictions/prediction.h5'))
+    
     else:
       reg = re.compile(r"\d+(?=\.)")
-      directory = f'predictions/predictions_' if 'flipout' not in method else f'predictions/flipout_new/predictions_'
-      if 'flipout' in method:
-        num = max([int(reg.search(x).group()) for x in os.listdir('predictions/flipout') if reg.search(x) != None]) + 1
-      else:
-        num = max([int(reg.search(x).group()) for x in os.listdir('predictions') if reg.search(x) != None]) + 1
+      if 'dropconnect' in method:
+         directory = f'mcdropconnect/predictions'
+      elif 'dropout' in method:
+        directory = f'mcdropout/predictions'
+      elif 'flipout' in method:
+        directory = f'flipout/predictions' 
+      num = max([int(reg.search(x).group()) for x in os.listdir(directory) if reg.search(x) != None]) + 1
       ret = {method: {'test': {'preds':[], 'labels':[]}, 'lockbox': {'preds':[], 'labels':[]}}}
       for n in range(num):
           temp_holder = load_dict_from_hdf5(directory + f'{n}.h5')
@@ -120,7 +142,7 @@ def load_predictions(method, num=None):
           ret[method]['lockbox']['preds'].append(temp_holder[method]['lockbox']['preds'])
           if n == 0:
             ret[method]['test']['labels'] = temp_holder[method]['test']['labels']
-            ret[method]['lockbox']['labels'] =temp_holder[method]['lockbox']['labels']
+            ret[method]['lockbox']['labels'] = temp_holder[method]['lockbox']['labels']
 
       ret[method]['test']['preds'] = np.array(ret[method]['test']['preds'])
       ret[method]['lockbox']['preds'] = np.array(ret[method]['lockbox']['preds'])

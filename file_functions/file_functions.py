@@ -1,6 +1,7 @@
 import h5py
 import os, os.path
 import numpy as np
+import yaml
 from .model_utils import alias_method
 
 def get_weights_directory(method):
@@ -10,15 +11,32 @@ def get_weights_directory(method):
 def get_predictions_directory(method):
     return f'{method}/predictions'
 
-    
+def fetch_method_names():
+    with safe_open_w('file_functions/config.yaml', 'r') as file:
+        output = yaml.safe_load(file)
+    return output[0]['method_names']
+
+def fetch_metric_names():
+    with safe_open_w('file_functions/config.yaml', 'r') as file:
+        output = yaml.safe_load(file)
+    return output[1]['metrics']
+
+def fetch_keys():
+    with safe_open_w('file_functions/config.yaml', 'r') as file:
+        output = yaml.safe_load(file)
+    return output[2]['keys']
+
+
+
+
 def load_lockbox(filename='lockbox'):
     return load_dict_from_hdf5(filename)['data']
 
-def safe_open_w(path):
+def safe_open_w(path, key):
     ''' Open "path" for writing, creating any parent directories as needed.
     '''
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    return open(path, 'w')
+    return open(path, key)
         
 def save_dict_to_hdf5(dic, filename):
     with h5py.File(filename, 'w') as h5file:

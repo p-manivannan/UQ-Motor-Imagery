@@ -1,0 +1,5 @@
+- method_names : [dropconnect, dropout, duq, ensemble, flipout, mcdropconnect, mcdropout]
+
+- metrics : ['accuracy', 'predictive-entropy', 'shannon-entropy', 'mutual-information']
+
+- keys : ['test', 'lockbox']
