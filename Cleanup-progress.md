@@ -1,8 +1,6 @@
 # To-Do:
-- Clean up and make the following pipelines as modular as possible:
-    - Analysis
-- Create config writing/loading to access method names:
-    - As well as the training/tuning params for each method
+- Fix DUQ predicting only zeroes for some subjects
+- Fix ensemble result analysis errors
 
 # Done:
 - Pre-processing 👍

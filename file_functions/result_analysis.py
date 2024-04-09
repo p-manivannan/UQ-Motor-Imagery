@@ -113,7 +113,6 @@ def get_corrects(Y_true, Y_pred, axis):
         Y_pred = np.mean(Y_true, axis=-3)       # averages forward passes if not already averaged
     return np.argmax(Y_true, axis=axis) == np.argmax(Y_pred, axis=axis)
 
-# WIP
 def load_predictions(method):
     if 'ensemble' in method:      # currently only ensemble based on regular dropout
         return load_dict_from_hdf5(f'ensemble/predictions/prediction.h5')

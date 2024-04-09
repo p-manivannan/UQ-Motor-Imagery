@@ -28,6 +28,9 @@ class Predictor:
         ff.safe_open_w(filename, 'w')      # Create directory
         ff.save_dict_to_hdf5(dic=self.predictions, filename=filename)
 
+    '''
+    Predicts and saves
+    '''
     def predict(self, dataset, lockbox):
         if ff.isMethodStochastic(self.method):
             self.predict_n_passes(dataset, lockbox)
@@ -40,16 +43,6 @@ class Predictor:
         self.predictions = {self.method : 
                             {'test': {'preds': [], 'labels': []},
                              'lockbox': {'preds':[], 'labels': []}}}
-
-    def predict_samples(self, X, model):
-        if ff.isMethodStochastic(self.method):
-            model = StochasticClassifier(model)
-            return model.predict_samples(X, self.forward_passes)
-        elif 'ensemble' in self.method:
-            model = DeepEnsembleClassifier(model_fn=lambda: ff.determine_hypermodel(self.method)(self.hp), num_estimators=10)
-            return model.predict(X)
-        else:
-            return model.predict(X)
 
     '''
     Passes referred to do not refer to forward passes,
@@ -73,10 +66,24 @@ class Predictor:
             model.load_weights(f'{self.wts_directory + f"/test_subject_{test_subject_id}"}').expect_partial()
             Y_preds = self.predict_samples(X_test, model)
             lockbox_Y_preds = self.predict_samples(X_lock, model)
-            print(f'Y_lock: {Y_lock.shape}, X_lock: {X_lock.shape}, Y_test: {Y_true.shape}, X_test: {X_test.shape}')
             self.append_to_predictions_dict(Y_preds, Y_true, lockbox_Y_preds, Y_lock)
 
         self.convert_preds_dict_2_numpy()
+        
+
+    '''
+    Given a test set and a model, predicts samples to be returned
+    '''
+    def predict_samples(self, X, model):
+        if ff.isMethodStochastic(self.method):
+            model = StochasticClassifier(model)
+            return model.predict_samples(X, self.forward_passes)
+        elif 'ensemble' in self.method:
+            model = DeepEnsembleClassifier(model_fn=lambda: ff.determine_hypermodel(self.method)(self.hp), num_estimators=10)
+            return model.predict(X)
+        else:
+            return model.predict(X)
+
 
     def append_to_predictions_dict(self, Y_preds, Y_true, lockbox_Y_preds, Y_lock):
         for items in self.predictions.values():
