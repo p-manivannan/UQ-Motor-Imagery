@@ -23,12 +23,9 @@ class Predictor:
                             {'test': {'preds': [], 'labels': []},
                              'lockbox': {'preds':[], 'labels': []}}}
 
-    def load_predictions(self):
-        pass
-
     def save_predictions(self, filename):
         filename = f'{ff.get_predictions_directory(self.method) + "/" + filename + ".h5"}'
-        ff.safe_open_w(filename)      # Create directory
+        ff.safe_open_w(filename, 'w')      # Create directory
         ff.save_dict_to_hdf5(dic=self.predictions, filename=filename)
 
     def predict(self, dataset, lockbox):
@@ -47,11 +44,8 @@ class Predictor:
     def predict_samples(self, X, model):
         if ff.isMethodStochastic(self.method):
             model = StochasticClassifier(model)
-            return model.predict(X, self.forward_passes)
+            return model.predict_samples(X, self.forward_passes)
         elif 'ensemble' in self.method:
-            #
-            # I FORGOT HOW IT WORKS, PLEASE CHECK IT
-            #
             model = DeepEnsembleClassifier(model_fn=lambda: ff.determine_hypermodel(self.method)(self.hp), num_estimators=10)
             return model.predict(X)
         else:
@@ -74,21 +68,22 @@ class Predictor:
             train_subj_ids = [x for x in self.subject_ids if x != test_subject_id]
             X_test = loaded_inputs[test_subject_id]
             Y_true = loaded_targets[test_subject_id]
-            X_lock, _ = ff.get_lockbox_data(loaded_inputs[train_subj_ids], loaded_targets[train_subj_ids], lockbox[test_subject_id])
+            X_lock, Y_lock = ff.get_lockbox_data(loaded_inputs[train_subj_ids], loaded_targets[train_subj_ids], lockbox[test_subject_id])
             model = ff.get_class(self.method).build(self.hp)
             model.load_weights(f'{self.wts_directory + f"/test_subject_{test_subject_id}"}').expect_partial()
             Y_preds = self.predict_samples(X_test, model)
             lockbox_Y_preds = self.predict_samples(X_lock, model)
-            self.append_to_predictions_dict(Y_preds, Y_true, lockbox_Y_preds)
+            print(f'Y_lock: {Y_lock.shape}, X_lock: {X_lock.shape}, Y_test: {Y_true.shape}, X_test: {X_test.shape}')
+            self.append_to_predictions_dict(Y_preds, Y_true, lockbox_Y_preds, Y_lock)
 
         self.convert_preds_dict_2_numpy()
 
-    def append_to_predictions_dict(self, Y_preds, Y_true, lockbox_Y_preds):
+    def append_to_predictions_dict(self, Y_preds, Y_true, lockbox_Y_preds, Y_lock):
         for items in self.predictions.values():
             items['test']['preds'].append(Y_preds)
             items['test']['labels'].append(Y_true)
             items['lockbox']['preds'].append(lockbox_Y_preds)
-            items['lockbox']['labels'].append(Y_true)
+            items['lockbox']['labels'].append(Y_lock)
     
     def convert_preds_dict_2_numpy(self):
         for items in self.predictions.values():

@@ -115,18 +115,13 @@ def get_corrects(Y_true, Y_pred, axis):
 
 # WIP
 def load_predictions(method):
+    print(method)
     if 'ensemble' in method:      # currently only ensemble based on regular dropout
         return load_dict_from_hdf5(f'ensemble/predictions/prediction.h5')
     elif 'duq' in method:
         return load_dict_from_hdf5(f'duq/predictions/prediction.h5')                     # Only cases are MC-Dropout and MC-DropConnect
     
-    if 'mc' not in method:
-      if 'dropout' in method:
-        return load_dict_from_hdf5(f'dropout/predictions/prediction.h5')
-      elif 'dropconnect' in method:
-        return load_dict_from_hdf5((f'dropconnect/predictions/prediction.h5'))
-    
-    else:
+    elif 'mc' in method or 'flipout' in method:
       reg = re.compile(r"\d+(?=\.)")
       if 'dropconnect' in method:
          directory = f'mcdropconnect/predictions'
@@ -137,7 +132,7 @@ def load_predictions(method):
       num = max([int(reg.search(x).group()) for x in os.listdir(directory) if reg.search(x) != None]) + 1
       ret = {method: {'test': {'preds':[], 'labels':[]}, 'lockbox': {'preds':[], 'labels':[]}}}
       for n in range(num):
-          temp_holder = load_dict_from_hdf5(directory + f'{n}.h5')
+          temp_holder = load_dict_from_hdf5(directory + f'/prediction_{n}.h5')
           ret[method]['test']['preds'].append(temp_holder[method]['test']['preds'])
           ret[method]['lockbox']['preds'].append(temp_holder[method]['lockbox']['preds'])
           if n == 0:
@@ -147,6 +142,12 @@ def load_predictions(method):
       ret[method]['test']['preds'] = np.array(ret[method]['test']['preds'])
       ret[method]['lockbox']['preds'] = np.array(ret[method]['lockbox']['preds'])
       return ret
+
+    elif 'mc' not in method:
+      if 'dropout' in method:
+        return load_dict_from_hdf5(f'dropout/predictions/prediction.h5')
+      elif 'dropconnect' in method:
+        return load_dict_from_hdf5((f'dropconnect/predictions/prediction.h5'))
 
 def avg_forward_passes(data):
     data["preds"] = data["preds"].mean(axis=-3)

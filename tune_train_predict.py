@@ -9,7 +9,7 @@ import predicting as prd
 import file_functions as ff
 
 # Read method names from config file
-methods = ['ensemble', 'duq', 'flipout', 'dropconnect', 'dropout', 'mcdropconnect', 'mcdropout']
+methods = ff.fetch_method_names()
 # Load data
 dataset = ff.load_dict_from_hdf5('dataset')
 lockbox = ff.load_lockbox()
