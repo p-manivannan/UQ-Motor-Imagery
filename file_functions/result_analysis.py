@@ -46,7 +46,7 @@ This is important because standard methods have different
 y_pred sizes and therefore require special consideration.
 '''
 def checkIfStandard(method):
-   if 'standard' in method:
+   if method in ['dropout', 'dropconnect']:
       return 1
    elif 'duq' in method:
       return 2
@@ -115,7 +115,6 @@ def get_corrects(Y_true, Y_pred, axis):
 
 # WIP
 def load_predictions(method):
-    print(method)
     if 'ensemble' in method:      # currently only ensemble based on regular dropout
         return load_dict_from_hdf5(f'ensemble/predictions/prediction.h5')
     elif 'duq' in method:
