@@ -21,7 +21,7 @@ class Tuner:
         self.n_epochs = n_epochs
         self.callbacks = self.default_callbacks() if callbacks is None else callbacks
         self.method = ff.alias_method(method)
-        self.directory = f'{self.method}/tuning'
+        self.directory = f'{self.method}/tuning' if 'ensem' not in method else f'dropout/tuning'    # ensemble uses dropout tuner
         self.overwrite = overwrite
         self.objective = objective
         self.max_trials = max_trials

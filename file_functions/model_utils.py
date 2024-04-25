@@ -49,7 +49,7 @@ def alias_method(method):
     method = condense_string(method)
     if method is None:
         raise ValueError ("method provided is None!")
-    if 'dropout' in method or 'ensemble' in method:
+    if 'dropout' in method:
         return 'dropout'
     elif 'connect' in method:
         return 'dropconnect'

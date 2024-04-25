@@ -63,7 +63,7 @@ class Predictor:
             Y_true = loaded_targets[test_subject_id]
             X_lock, Y_lock = ff.get_lockbox_data(loaded_inputs[train_subj_ids], loaded_targets[train_subj_ids], lockbox[test_subject_id])
             model = ff.get_class(self.method).build(self.hp)
-            model.load_weights(f'{self.wts_directory + f"/test_subject_{test_subject_id}"}').expect_partial()
+            model.load_weights(f'{self.wts_directory + f"/test_subject_{test_subject_id}"}')
             Y_preds = self.predict_samples(X_test, model)
             lockbox_Y_preds = self.predict_samples(X_lock, model)
             self.append_to_predictions_dict(Y_preds, Y_true, lockbox_Y_preds, Y_lock)
@@ -79,8 +79,7 @@ class Predictor:
             model = StochasticClassifier(model)
             return model.predict_samples(X, self.forward_passes)
         elif 'ensemble' in self.method:
-            model = DeepEnsembleClassifier(model_fn=lambda: ff.determine_hypermodel(self.method)(self.hp), num_estimators=10)
-            return model.predict(X)
+            return model.predict_samples(X)
         else:
             return model.predict(X)
 

@@ -1,5 +1,5 @@
-# - method_names : [ensemble, dropconnect, dropout, flipout, mcdropconnect, mcdropout, duq]
-- method_names : [ensemble, duq]
+# - method_names : [ensemble, dropconnect, dropout, flipout, mcdropconnect, mcdropout]
+- method_names : [duq]
 
 - metrics : ['accuracy', 'predictive-entropy', 'shannon-entropy', 'mutual-information']
 

@@ -2,7 +2,15 @@ import h5py
 import os, os.path
 import numpy as np
 import yaml
-from .model_utils import alias_method
+from .model_utils import alias_method, condense_string
+
+'''
+Assumes dropout has already been tuned X_X
+'''
+def get_tuning_directory(method):
+    method = condense_string(method)
+    if 'ensem' in method:
+        return f'dropout/tuning' 
 
 def get_weights_directory(method):
     method = alias_method(method)
